@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PermitPath — see the timeline before you buy the dirt</title>
+<meta name="description" content="PermitPath models entitlement & permitting timelines across the 48 contiguous states — zoning, site plan, environmental, historic, utilities, hearings — and turns delay into dollars with a carrying-cost engine.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f1418'/%3E%3Cpath d='M8 24 L8 12 L16 12 L16 18 L24 18 L24 8' fill='none' stroke='%2310b981' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='24' cy='8' r='3' fill='%23f59e0b'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#0f1418">
+<script>
+const GA_ID="";
+if(GA_ID){const s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+GA_ID;document.head.appendChild(s);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',GA_ID);}
+</script>
+<style>
+:root{
+  --bg:#0e1317; --panel:#131a20; --card:#182129; --line:#243039;
+  --ink:#e9eef2; --dim:#94a5b1; --faint:#5d6f7c;
+  --a1:#10b981; --a2:#34d399; --amber:#f59e0b; --bad:#f87171;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.55}
+h1,h2,h3{margin:0}
+button,input,select{font-family:inherit}
+a{color:var(--a2)}
+::selection{background:rgba(16,185,129,.3)}
+
+header{position:sticky;top:0;z-index:40;height:58px;display:flex;align-items:center;gap:12px;padding:0 16px;background:linear-gradient(180deg,#121a21,#0e1317);border-bottom:1px solid var(--line)}
+header:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(16,185,129,.5),rgba(245,158,11,.5),transparent)}
+#logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.02em}
+#logo b{color:var(--a1)}
+.hsp{flex:1}
+.pill{font-size:12px;font-weight:600;border:1px solid var(--line);border-radius:999px;padding:6px 13px;color:var(--dim);background:var(--card);cursor:pointer;transition:.15s}
+.pill:hover{color:var(--ink);border-color:#33475a}
+.pill.pro{background:linear-gradient(90deg,#f59e0b,#f97316);color:#221303;border:none;font-weight:700}
+.pill.prodone{background:rgba(52,211,153,.15);color:var(--a2);border-color:rgba(52,211,153,.4)}
+
+.tagline{background:linear-gradient(120deg,rgba(16,185,129,.1),rgba(245,158,11,.06));border-bottom:1px solid var(--line);padding:18px 16px;text-align:center}
+.tagline h1{font-family:Fraunces,serif;font-size:clamp(20px,3.4vw,28px)}
+.tagline h1 em{font-style:italic;color:var(--a2)}
+.tagline p{color:var(--dim);font-size:13.5px;margin:6px auto 0;max-width:72ch}
+
+#app{display:grid;grid-template-columns:400px 1fr;gap:0;max-width:1280px;margin:0 auto;align-items:start}
+#inputs{padding:20px 18px 40px;border-right:1px solid var(--line);position:sticky;top:58px}
+#out{padding:20px 22px 90px;min-width:0}
+@media(max-width:900px){
+  #app{grid-template-columns:1fr}
+  #inputs{position:static;border-right:none;border-bottom:1px solid var(--line)}
+}
+
+.lbl{display:block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:16px 0 7px}
+.tin,select.tin{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:12px 13px;font-size:14.5px;outline:none;transition:.15s}
+.tin:focus{border-color:var(--a1);box-shadow:0 0 0 3px rgba(16,185,129,.12)}
+select.tin{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a5b1' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center}
+.segrow{display:flex;gap:8px;flex-wrap:wrap}
+.seg{flex:1;min-width:80px;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--dim);font-size:13px;font-weight:600;padding:10px 8px;cursor:pointer;text-align:center;transition:.15s}
+.seg:hover{border-color:#33475a}
+.seg.on{background:linear-gradient(92deg,var(--a1),var(--a2));border-color:transparent;color:#04211a}
+.gate{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:.15s;user-select:none}
+.gate:hover{border-color:#33475a}
+.gate.on{border-color:var(--a1);background:rgba(16,185,129,.07)}
+.gate .ge{font-size:19px}
+.gate .gt{font-weight:600;font-size:13.5px}
+.gate .gs{font-size:11.5px;color:var(--faint)}
+.gate .tick{margin-left:auto;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;color:transparent}
+.gate.on .tick{background:var(--a1);border-color:var(--a1);color:#04211a}
+.finrow{display:flex;gap:8px}
+.finrow .fld{flex:1}
+.fld small{display:block;font-size:10px;color:var(--faint);margin-top:4px}
+#runBtn{width:100%;border:none;border-radius:13px;padding:14px;font-size:16px;font-weight:700;color:#04211a;background:linear-gradient(92deg,var(--a1),var(--a2));cursor:pointer;margin-top:18px;transition:transform .12s,filter .12s;box-shadow:0 6px 18px -6px rgba(16,185,129,.4)}
+#runBtn:hover{transform:translateY(-1px);filter:brightness(1.07)}
+.mini{font-size:11.5px;color:var(--faint);margin-top:10px;line-height:1.5}
+
+.bigcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px}
+.verdict{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.verdict .vmo{font-family:Fraunces,serif;font-size:clamp(34px,5vw,48px);font-weight:700;background:linear-gradient(90deg,var(--a2),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.verdict .vt{font-weight:600;font-size:15px}
+.verdict .vs{color:var(--dim);font-size:13px;margin-top:3px}
+.secl{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.secl:after{content:"";flex:1;height:1px;background:var(--line)}
+.secl .lock{color:var(--amber)}
+
+/* gantt */
+.gantt{display:grid;gap:9px}
+.grow{display:grid;grid-template-columns:150px 1fr 92px;gap:10px;align-items:center;font-size:13px}
+.grow .gn{font-weight:600}
+.grow .gn small{display:block;color:var(--faint);font-weight:500;font-size:11px}
+.gbarwrap{height:22px;background:rgba(255,255,255,.04);border-radius:6px;position:relative;overflow:hidden}
+.gbar{position:absolute;top:0;bottom:0;border-radius:6px;background:linear-gradient(90deg,var(--gc,#10b981),color-mix(in srgb,var(--gc,#10b981) 60%,transparent));min-width:8px}
+.gbar i{position:absolute;top:0;bottom:0;right:0;width:38%;background:repeating-linear-gradient(135deg,rgba(255,255,255,.14) 0 5px,transparent 5px 10px);border-radius:0 6px 6px 0}
+.grow .gm{font-size:12px;color:var(--dim);text-align:right;font-variant-numeric:tabular-nums}
+.gaxis{display:flex;justify-content:space-between;font-size:10px;color:var(--faint);margin-top:6px;padding-left:160px}
+@media(max-width:640px){.grow{grid-template-columns:96px 1fr 74px}.gaxis{padding-left:106px}}
+
+/* carry */
+.carrybig{font-family:Fraunces,serif;font-size:clamp(26px,4vw,38px);font-weight:700;color:var(--amber)}
+.carrysub{color:var(--dim);font-size:13px;margin-top:4px}
+.permo{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13.5px}
+.permo b{color:var(--bad)}
+
+/* playbooks */
+.play{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;background:rgba(255,255,255,.02)}
+.play h4{margin:0;font-size:14px;display:flex;gap:9px;align-items:center}
+.play ul{margin:10px 0 0;padding-left:20px;color:var(--dim);font-size:13px}
+.play li{margin-bottom:6px}
+.play .lockli{list-style:none;margin-left:-20px;color:var(--amber);font-size:12.5px;font-weight:600;cursor:pointer}
+
+/* matrix */
+.mtable{width:100%;border-collapse:collapse;font-size:13px}
+.mtable th{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+.mtable td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04)}
+.mtable tr:hover td{background:rgba(255,255,255,.03)}
+.mtable .mm{font-variant-numeric:tabular-nums;font-weight:600}
+.badge{display:inline-block;font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px;background:rgba(16,185,129,.15);color:var(--a2)}
+.badge.sc{background:rgba(245,158,11,.15);color:var(--amber)}
+.locknote{background:linear-gradient(120deg,rgba(245,158,11,.1),rgba(249,115,22,.06));border:1px solid rgba(245,158,11,.35);border-radius:14px;padding:16px;font-size:13.5px;color:#fcd9a0}
+.locknote b{color:var(--amber)}
+.lockbtn{display:inline-block;margin-top:10px;background:linear-gradient(90deg,#f59e0b,#f97316);color:#221303;font-weight:700;font-size:13px;border:none;border-radius:999px;padding:9px 16px;cursor:pointer;text-decoration:none}
+.rowbtns{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.smallbtn{background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink);font-weight:600;font-size:13px;padding:10px 16px;cursor:pointer}
+.smallbtn:hover{border-color:var(--a1)}
+.scen{display:inline-flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600;color:var(--dim);cursor:pointer;margin:0 8px 8px 0}
+.scen:hover{border-color:var(--a1);color:var(--ink)}
+.scen .x{color:var(--faint)}
+.disc{font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:20px;border-top:1px solid var(--line);padding-top:14px}
+
+#modal{position:fixed;inset:0;z-index:80;display:none;place-items:center;background:rgba(4,8,11,.72);backdrop-filter:blur(4px)}
+#modal.on{display:grid}
+#mcard{width:min(94vw,460px);max-height:86vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px}
+#mcard h2{font-family:Fraunces,serif;font-size:21px;margin-bottom:8px}
+#mcard p{font-size:13.5px;color:var(--dim)}
+.closex{float:right;background:none;border:none;color:var(--faint);font-size:22px;cursor:pointer}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(90px);background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:11px 20px;font-size:13.5px;font-weight:600;z-index:90;transition:transform .25s;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+#toast.on{transform:translateX(-50%) translateY(0)}
+footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);font-size:12px}
+@media print{
+  header,.tagline,#inputs,.rowbtns,#upsell,.locknote,footer .noprint{display:none!important}
+  body{background:#fff;color:#000}
+  .bigcard,.play{border-color:#ccc;background:#fff;color:#000}
+  .verdict .vmo,.carrybig{color:#000;-webkit-text-fill-color:#000}
+  #app{display:block}
+}
+</style>
+</head>
+<body>
+<header>
+  <div id="logo"><svg width="28" height="28" viewBox="0 0 32 32"><path d="M8 24 L8 12 L16 12 L16 18 L24 18 L24 8" fill="none" stroke="#10b981" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="8" r="3" fill="#f59e0b"/></svg> Permit<b>Path</b></div>
+  <div class="hsp"></div>
+  <button class="pill pro" id="proBtn">Go Pro</button>
+</header>
+
+<div class="tagline">
+  <h1>See the timeline <em>before</em> you buy the dirt.</h1>
+  <p>Model entitlement &amp; permitting schedules across the 48 contiguous states — zoning, site plan, environmental, historic, utilities, hearings — then turn every month of delay into dollars of carry.</p>
+</div>
+
+<div id="app">
+  <div id="inputs">
+    <label class="lbl">State</label>
+    <select class="tin" id="stateSel"></select>
+    <div class="mini" id="stateNote"></div>
+
+    <label class="lbl">Project type</label>
+    <div class="segrow" id="typeRow"></div>
+
+    <label class="lbl">Project scale</label>
+    <div class="segrow" id="sizeRow">
+      <button class="seg" data-v="s">Small</button>
+      <button class="seg on" data-v="m">Medium</button>
+      <button class="seg" data-v="l">Large</button>
+    </div>
+
+    <label class="lbl">Approval gates (tap all that apply)</label>
+    <div id="gates"></div>
+
+    <label class="lbl">Carrying-cost inputs</label>
+    <div class="finrow">
+      <div class="fld"><input class="tin" id="debtIn" type="number" value="2000000" min="0" step="50000"><small>Land + loan basis ($)</small></div>
+      <div class="fld"><input class="tin" id="rateIn" type="number" value="8.5" min="0" step="0.25"><small>Interest rate (%/yr)</small></div>
+      <div class="fld"><input class="tin" id="softIn" type="number" value="6000" min="0" step="500"><small>Other monthly carry ($)</small></div>
+    </div>
+
+    <button id="runBtn">Run the timeline →</button>
+    <p class="mini">Directional planning estimates from state-level factors and national benchmarks — every jurisdiction is local. Not legal advice.</p>
+  </div>
+
+  <div id="out">
+    <div id="scenRow"></div>
+    <div id="results"></div>
+  </div>
+</div>
+
+<footer>
+  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.0 · </span>
+  Estimates are directional and for planning only; actual timelines are set by local jurisdictions. Verify locally. Not legal, engineering, or investment advice.
+</footer>
+
+<div id="modal"><div id="mcard"><button class="closex" id="mClose">×</button><h2 id="mTitle"></h2><div id="mBody"></div></div></div>
+<div id="toast"></div>
+
+<script>
+/* ============ PERMITPATH v1.0 — config ============ */
+const BUY_URL="#";           // ← Gumroad / Stripe payment link for Pro
+const PRICE_TXT="$29 one-time";
+/* ============ DATA ============ */
+/* mult = state regulatory-intensity factor (directional); sc = statutory shot-clock/deadline note; note = one-liner */
+const STATES={
+ AL:{n:'Alabama',m:.85,sc:null,note:'Generally permissive; larger metros add review layers.'},
+ AZ:{n:'Arizona',m:1.05,sc:'Statutory licensing time frames apply to many approvals.',note:'Time-frame statutes help; water adequacy can gate large projects.'},
+ AR:{n:'Arkansas',m:.85,sc:null,note:'Lean state layer; municipal boards drive timing.'},
+ CA:{n:'California',m:1.6,sc:'Permit Streamlining Act sets decision deadlines once applications are complete.',note:'CEQA review is the dominant schedule driver; expect appeals risk.'},
+ CO:{n:'Colorado',m:1.2,sc:null,note:'Home-rule cities vary widely; water dedication adds steps.'},
+ CT:{n:'Connecticut',m:1.3,sc:'Statutes set hearing/decision windows for zoning commissions.',note:'Commission calendars and wetlands agencies drive pace.'},
+ DE:{n:'Delaware',m:1.1,sc:null,note:'County-level review; coastal zone adds a layer.'},
+ FL:{n:'Florida',m:1.1,sc:'s.553.792 building-permit deadlines with fee reductions for delay.',note:'Concurrency & environmental (SFWMD/DEP) shape schedules.'},
+ GA:{n:'Georgia',m:1.0,sc:null,note:'Zoning Procedures Act sets hearing mechanics; metro Atlanta slower.'},
+ ID:{n:'Idaho',m:.85,sc:null,note:'Fast-growth cities are stretched; state layer light.'},
+ IL:{n:'Illinois',m:1.25,sc:null,note:'Chicago aldermanic dynamics vs. faster collar/downstate.'},
+ IN:{n:'Indiana',m:.9,sc:null,note:'Plan-commission cycles are the main clock.'},
+ IA:{n:'Iowa',m:.85,sc:null,note:'Straightforward; council calendars set pace.'},
+ KS:{n:'Kansas',m:.85,sc:null,note:'Lean state role; county/city boards govern.'},
+ KY:{n:'Kentucky',m:.9,sc:null,note:'Planning-unit structure; Louisville/Lexington add layers.'},
+ LA:{n:'Louisiana',m:.95,sc:null,note:'Coastal & drainage reviews can extend southern parishes.'},
+ ME:{n:'Maine',m:1.15,sc:null,note:'Site Location of Development law triggers on larger projects.'},
+ MD:{n:'Maryland',m:1.3,sc:null,note:'Forest conservation, stormwater & adequacy tests add steps.'},
+ MA:{n:'Massachusetts',m:1.4,sc:'Permit-session/appeal reforms exist, but appeals remain a risk.',note:'Town meeting culture + MEPA on larger projects.'},
+ MI:{n:'Michigan',m:1.0,sc:null,note:'EGLE wetlands review where triggered; townships vary.'},
+ MN:{n:'Minnesota',m:1.15,sc:'60-day agency decision rule (extendable) on many applications.',note:'MEPA (EAW/EIS) triggers on thresholds.'},
+ MS:{n:'Mississippi',m:.85,sc:null,note:'Light state layer; local boards drive.'},
+ MO:{n:'Missouri',m:.9,sc:null,note:'KC/STL more layered than out-state.'},
+ MT:{n:'Montana',m:.9,sc:'Recent reforms added review deadlines in growth cities.',note:'Subdivision review statute structures timelines.'},
+ NE:{n:'Nebraska',m:.85,sc:null,note:'Lean; council cycles set the clock.'},
+ NV:{n:'Nevada',m:1.0,sc:null,note:'Clark/Washoe queues vs. fast rurals; water is the gate.'},
+ NH:{n:'New Hampshire',m:1.15,sc:'Statute sets planning-board action windows.',note:'Volunteer boards meet monthly — calendar math matters.'},
+ NJ:{n:'New Jersey',m:1.4,sc:'Municipal Land Use Law sets decision deadlines per application type.',note:'MLUL deadlines help, but boards, DEP & affordable-housing layers add time.'},
+ NM:{n:'New Mexico',m:1.05,sc:null,note:'Water availability and cultural-resource review can extend.'},
+ NY:{n:'New York',m:1.45,sc:null,note:'SEQR review + NYC ULURP (~7 mo statutory) for city rezonings.'},
+ NC:{n:'North Carolina',m:1.0,sc:'Ch.160D standardizes procedures; permit-choice rules protect applicants.',note:'Predictable framework; fast-growth queues in metros.'},
+ ND:{n:'North Dakota',m:.8,sc:null,note:'Among the leanest processes.'},
+ OH:{n:'Ohio',m:.95,sc:null,note:'Municipal home rule; suburbs generally efficient.'},
+ OK:{n:'Oklahoma',m:.8,sc:null,note:'Permissive; OKC/Tulsa move quickly by big-city standards.'},
+ OR:{n:'Oregon',m:1.35,sc:'120-day local decision rule on many land-use applications.',note:'UGB & land-use appeals (LUBA) shape strategy.'},
+ PA:{n:'Pennsylvania',m:1.15,sc:'MPC sets hearing/decision timelines; deemed-approval remedies exist.',note:'Township-by-township variance is the story.'},
+ RI:{n:'Rhode Island',m:1.25,sc:'Recent reforms unified review timelines.',note:'Coastal (CRMC) review where applicable.'},
+ SC:{n:'South Carolina',m:.95,sc:null,note:'Coastal zone adds a layer; otherwise steady.'},
+ SD:{n:'South Dakota',m:.8,sc:null,note:'Lean and fast.'},
+ TN:{n:'Tennessee',m:.9,sc:null,note:'Nashville queues vs. fast mid-size cities.'},
+ TX:{n:'Texas',m:.9,sc:'HB 3167: 30-day plat/site-plan action shot clock.',note:'No statewide zoning-enabling drama; big-city queues are the variable.'},
+ UT:{n:'Utah',m:.9,sc:'Land-use statutes include review timelines & vested-rights protections.',note:'Growth-friendly framework.'},
+ VT:{n:'Vermont',m:1.3,sc:null,note:'Act 250 review triggers on thresholds — plan for it early.'},
+ VA:{n:'Virginia',m:1.15,sc:'Statute sets planning-commission action windows.',note:'Proffer rules & NoVA queues shape rezonings.'},
+ WA:{n:'Washington',m:1.35,sc:'120-day local review target under permit-reform statutes.',note:'SEPA review + hearing examiners; recent reforms trimming timelines.'},
+ WV:{n:'West Virginia',m:.85,sc:null,note:'Light layers outside panhandles.'},
+ WI:{n:'Wisconsin',m:1.0,sc:'Recent laws tightened local review deadlines.',note:'Plan commissions steady; shoreland zoning where applicable.'},
+ WY:{n:'Wyoming',m:.8,sc:null,note:'Among the fastest; county boards govern.'}
+};
+const TYPES=[
+ ['sf','🏠 Single-family',0.85,['site','bp','util']],
+ ['mf','🏢 Multifamily',1.15,['rez','site','bp','util','hear']],
+ ['com','🛍 Commercial',1.0,['site','bp','util']],
+ ['ind','🏭 Industrial',0.95,['site','env','bp','util']],
+ ['mix','🌆 Mixed-use',1.2,['rez','site','bp','util','hear']]
+];
+const GATES=[
+ {id:'rez', e:'🗳', t:'Rezoning / entitlement', s:'Map or text amendment, PUD, special use', lo:4, hi:9, phase:0},
+ {id:'site',e:'📐', t:'Site plan / design review', s:'Engineering, staff comments, resubmittals', lo:3, hi:6, phase:1},
+ {id:'env', e:'🌿', t:'Environmental review', s:'Wetlands, stormwater, state env. acts, Phase I/II', lo:3, hi:8, phase:1},
+ {id:'hist',e:'🏛', t:'Historic review', s:'HPC / SHPO, certificates of appropriateness', lo:2, hi:4, phase:1},
+ {id:'util',e:'🔌', t:'Utility approvals', s:'Water/sewer capacity, will-serve, extensions', lo:2, hi:5, phase:2},
+ {id:'bp',  e:'🧱', t:'Building permit', s:'Plan check, corrections, issuance', lo:2, hi:5, phase:2},
+ {id:'hear',e:'🎤', t:'Public hearings likely', s:'Neighborhood meetings, continuances, appeals risk', lo:1, hi:3, phase:-1}
+];
+const PHASENAMES=['Entitlement','Design & clearances','Permitting'];
+const PHASECOLORS=['#f59e0b','#10b981','#60a5fa'];
+const PLAYBOOKS={
+ rez:['Request a pre-application meeting and get staff\u2019s issues list in writing before you file.','Line up a community meeting before the formal hearing — surprises at the dais cost continuances.','Ask about concurrent processing (rezoning + site plan together) — many codes allow it.'],
+ site:['Submit a truly complete first package; most "slow reviews" are really resubmittal loops.','Pre-coordinate with fire, traffic, and stormwater reviewers — they generate most comment cycles.','Track the comment-response matrix and hand-deliver responses to each reviewer.'],
+ env:['Order Phase I ESA and wetland delineation during due diligence, not after closing.','Ask early whether a state environmental act (CEQA/SEPA/SEQR-type) is triggered — it changes everything.','Scope drainage/stormwater with the reviewing engineer before design is 90% done.'],
+ hist:['Meet informally with historic-preservation staff before drawing elevations.','Bring precedent: approved projects in the same district de-risk your submittal.','Budget one continuance into the schedule — HPC calendars are unforgiving.'],
+ util:['Get will-serve letters during due diligence; capacity surprises are schedule killers.','Ask about off-site extension responsibilities and cost-sharing agreements up front.','Coordinate dry utilities (power/fiber) in parallel — they\u2019re the forgotten critical path.'],
+ bp:['Use consultants who know this jurisdiction\u2019s plan-check quirks; local knowledge halves cycles.','Ask about expedited or third-party plan review programs — many cities offer them.','Submit deferred items (signage, interiors) separately so the shell permit isn\u2019t hostage.'],
+ hear:['Do the neighborhood coffee meetings before opponents organize — first framing wins.','Prepare a one-page community-benefits summary; boards fund their yes with it.','Have counsel brief you on appeal windows so a win actually starts the clock.']
+};
+const SIZES={s:.7,m:1,l:1.4};
+
+/* ============ ENGINE ============ */
+const $=id=>document.getElementById(id);
+const KEY='permitpath.v1';
+let S=Object.assign({pro:false,scen:[]},(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}})());
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function toast(t){const x=$('toast');x.textContent=t;x.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>x.classList.remove('on'),2600)}
+const fm=n=>'$'+Math.round(n).toLocaleString('en-US');
+const f1=n=>(Math.round(n*10)/10).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:1});
+
+let sel={st:'GA',type:'mf',size:'m',gates:new Set(['rez','site','bp','util','hear'])};
+
+/* inputs */
+$('stateSel').innerHTML=Object.keys(STATES).sort((a,b)=>STATES[a].n.localeCompare(STATES[b].n)).map(k=>`<option value="${k}">${STATES[k].n}</option>`).join('');
+$('stateSel').value=sel.st;
+$('stateSel').onchange=()=>{sel.st=$('stateSel').value;stateNote();run();};
+function stateNote(){const st=STATES[sel.st];
+  $('stateNote').innerHTML='<b style="color:var(--dim)">'+st.n+':</b> '+st.note+(st.sc?' <span class="badge sc">⏱ shot-clock: '+st.sc+'</span>':'');}
+$('typeRow').innerHTML=TYPES.map(t=>`<button class="seg ${t[0]===sel.type?'on':''}" data-v="${t[0]}">${t[1]}</button>`).join('');
+$('typeRow').querySelectorAll('.seg').forEach(b=>b.onclick=()=>{
+  sel.type=b.dataset.v;
+  $('typeRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x===b));
+  const rec=TYPES.find(t=>t[0]===sel.type)[3];
+  sel.gates=new Set(rec); renderGates(); run();
+});
+$('sizeRow').querySelectorAll('.seg').forEach(b=>b.onclick=()=>{
+  sel.size=b.dataset.v;
+  $('sizeRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x===b)); run();
+});
+function renderGates(){
+  $('gates').innerHTML=GATES.map(g=>`<div class="gate ${sel.gates.has(g.id)?'on':''}" data-g="${g.id}">
+    <span class="ge">${g.e}</span><div><div class="gt">${g.t}</div><div class="gs">${g.s}</div></div><span class="tick">✓</span></div>`).join('');
+  $('gates').querySelectorAll('.gate').forEach(el=>el.onclick=()=>{
+    const id=el.dataset.g;
+    sel.gates.has(id)?sel.gates.delete(id):sel.gates.add(id);
+    el.classList.toggle('on'); run();
+  });
+}
+renderGates(); stateNote();
+['debtIn','rateIn','softIn'].forEach(id=>$(id).oninput=()=>run());
+$('runBtn').onclick=()=>{run();window.scrollTo({top:0,behavior:'smooth'});};
+
+/* model */
+function compute(stKey){
+  const st=STATES[stKey];
+  const mult=st.m*SIZES[sel.size]*TYPES.find(t=>t[0]===sel.type)[2];
+  const phases=[[],[],[]];
+  GATES.forEach(g=>{
+    if(!sel.gates.has(g.id)||g.id==='hear')return;
+    phases[g.phase].push({...g,lo:g.lo*mult,hi:g.hi*mult});
+  });
+  const hear=sel.gates.has('hear');
+  if(hear){
+    const target=phases[0].length?0:1;
+    if(phases[target].length)phases[target].push({id:'hear',e:'🎤',t:'Hearings & continuances',lo:GATES[6].lo*mult,hi:GATES[6].hi*mult,overlay:true});
+  }
+  const rows=[];let cumLo=0,cumHi=0;
+  phases.forEach((ph,i)=>{
+    if(!ph.length)return;
+    const lo=Math.max(...ph.map(x=>x.lo)), hi=Math.max(...ph.map(x=>x.hi));
+    rows.push({name:PHASENAMES[i],color:PHASECOLORS[i],items:ph,startLo:cumLo,startHi:cumHi,lo,hi});
+    cumLo+=lo;cumHi+=hi;
+  });
+  return {rows,lo:cumLo,hi:cumHi,st,mult};
+}
+function carry(months){
+  const d=+$('debtIn').value||0, r=(+$('rateIn').value||0)/100, o=+$('softIn').value||0;
+  const mo=d*r/12+o;
+  return {mo,lo:mo*months.lo,hi:mo*months.hi};
+}
+
+/* pro */
+function checkCode(c){c=(c||'').trim().toUpperCase();
+  if(!/^PMT-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(c))return false;
+  const b=c.replace(/[^A-Z0-9]/g,'').slice(3);let s2=0;for(const ch of b)s2+=ch.charCodeAt(0);
+  return s2%29===7;}
+function openModal(t,b){$('mTitle').textContent=t;$('mBody').innerHTML=b;$('modal').classList.add('on');}
+$('mClose').onclick=()=>$('modal').classList.remove('on');
+$('modal').onclick=e=>{if(e.target.id==='modal')$('modal').classList.remove('on');};
+function openPro(msg){
+  openModal('PermitPath Pro',`<p>${msg||'One unlock, yours forever on this device:'}</p>
+   <ul style="color:var(--dim);font-size:13.5px;line-height:1.9;padding-left:18px;margin:8px 0 14px">
+     <li>All-48-state comparison matrix for your exact scenario</li>
+     <li>Full delay-mitigation playbooks (every gate, every tip)</li>
+     <li>Unlimited saved scenarios &amp; printable underwriting exhibit</li></ul>
+   <a class="lockbtn" href="${BUY_URL}" target="_blank" rel="noopener">Get Pro — ${PRICE_TXT} →</a>
+   <div style="display:flex;gap:8px;align-items:center;margin-top:14px">
+     <input class="tin" id="codeIn" placeholder="PMT-XXXX-XXXX" style="flex:1">
+     <button class="lockbtn" id="applyCode" style="background:var(--a1);color:#04211a;margin:0">Apply</button></div>`);
+  $('applyCode').onclick=()=>{
+    if(checkCode($('codeIn').value)){S.pro=true;save();proUI();$('modal').classList.remove('on');toast('🎉 Pro unlocked');run();}
+    else toast('That code doesn\u2019t look right');
+  };
+}
+function proUI(){$('proBtn').textContent=S.pro?'✓ Pro':'Go Pro';$('proBtn').className='pill '+(S.pro?'prodone':'pro');}
+$('proBtn').onclick=()=>S.pro?toast('Pro is active on this device ✓'):openPro();
+
+/* scenarios */
+function scenLabel(sc){return STATES[sc.st].n.split(' ')[0]+' · '+sc.type.toUpperCase()+' · '+f1(sc.lo)+'–'+f1(sc.hi)+' mo';}
+function renderScens(){
+  $('scenRow').innerHTML=S.scen.map((sc,i)=>`<span class="scen" data-i="${i}">📌 ${scenLabel(sc)}<span class="x" data-x="${i}">✕</span></span>`).join('');
+  $('scenRow').querySelectorAll('.scen').forEach(c=>c.onclick=e=>{
+    if(e.target.dataset.x!==undefined){S.scen.splice(+e.target.dataset.x,1);save();renderScens();return;}
+    const sc=S.scen[+c.dataset.i];
+    sel={st:sc.st,type:sc.type,size:sc.size,gates:new Set(sc.gates)};
+    $('stateSel').value=sc.st;stateNote();
+    $('typeRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x.dataset.v===sc.type));
+    $('sizeRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x.dataset.v===sc.size));
+    renderGates();run();
+  });
+}
+
+/* render */
+function run(){
+  const R=compute(sel.st), C=carry(R);
+  if(!R.rows.length){
+    $('results').innerHTML='<div class="bigcard" style="text-align:center;color:var(--dim)">Select at least one approval gate on the left to model a timeline.</div>';
+    return;
+  }
+  const maxMo=Math.max(R.hi,1);
+  let h=`<div class="bigcard"><div class="verdict">
+    <div class="vmo">${f1(R.lo)}–${f1(R.hi)}<span style="font-size:.45em;font-weight:600"> mo</span></div>
+    <div><div class="vt">${R.st.n} · ${TYPES.find(t=>t[0]===sel.type)[1].slice(2)} · ${sel.size==='s'?'small':sel.size==='m'?'medium':'large'} scale</div>
+    <div class="vs">${[...sel.gates].length} gates modeled · state factor ×${R.st.m.toFixed(2)}${R.st.sc?' · <span class="badge sc">⏱ shot-clock state</span>':''}</div></div>
+  </div></div>`;
+
+  // gantt
+  h+=`<div class="bigcard"><div class="secl" style="margin-top:0">Sequenced timeline (parallel gates share a phase)</div><div class="gantt">`;
+  R.rows.forEach(row=>{
+    const left=row.startLo/maxMo*100;
+    const span=row.startHi-row.startLo+row.hi;              // slip + slow-case duration
+    const width=Math.max(6,span/maxMo*100);
+    const hatch=Math.max(0,100-(row.lo/span)*100);          // % of bar beyond the optimistic path
+    h+=`<div class="grow"><div class="gn">${row.name}<small>${row.items.map(x=>x.e).join(' ')}</small></div>
+      <div class="gbarwrap"><div class="gbar" style="--gc:${row.color};left:${left}%;width:${width}%"><i style="width:${hatch}%"></i></div></div>
+      <div class="gm">${f1(row.lo)}–${f1(row.hi)} mo</div></div>`;
+  });
+  h+=`</div><div class="gaxis"><span>0</span><span>${f1(maxMo/2)} mo</span><span>${f1(maxMo)} mo</span></div>
+  <p style="font-size:12px;color:var(--faint);margin:10px 0 0">Solid = optimistic path · hatched = the slow-case tail. Gates inside a phase run in parallel; phases run in sequence.</p></div>`;
+
+  // carry
+  h+=`<div class="bigcard"><div class="secl" style="margin-top:0">What the wait costs</div>
+    <div class="carrybig">${fm(C.lo)} – ${fm(C.hi)}</div>
+    <div class="carrysub">Total carry across the entitlement window · ${fm(C.mo)}/month (interest + soft carry)</div>
+    <div class="permo">Every extra month of delay costs <b>${fm(C.mo)}</b>. A single avoided continuance can pay for a lot of pre-application coffee.</div></div>`;
+
+  // playbooks
+  h+=`<div class="bigcard"><div class="secl" style="margin-top:0">Delay-mitigation playbook ${S.pro?'':'<span class="lock">· Pro shows every tip</span>'}</div>`;
+  GATES.forEach(g=>{
+    if(!sel.gates.has(g.id))return;
+    const tips=PLAYBOOKS[g.id]; const show=S.pro?tips:tips.slice(0,1);
+    h+=`<div class="play"><h4>${g.e} ${g.t}</h4><ul>${show.map(t=>'<li>'+t+'</li>').join('')}
+      ${S.pro?'':'<li class="lockli" onclick="openPro()">🔒 +'+(tips.length-1)+' more tactics — unlock Pro</li>'}</ul></div>`;
+  });
+  h+=`</div>`;
+
+  // matrix
+  h+=`<div class="bigcard"><div class="secl" style="margin-top:0">Same project, all 48 states ${S.pro?'':'<span class="lock">· Pro</span>'}</div>`;
+  if(S.pro){
+    const rows=Object.keys(STATES).map(k=>({k,...compute(k)})).sort((a,b)=>a.lo-b.lo);
+    h+=`<div style="max-height:420px;overflow-y:auto"><table class="mtable"><tr><th>#</th><th>State</th><th>Months</th><th>Carry range</th><th></th></tr>`;
+    rows.forEach((r,i)=>{const c=carry(r);
+      h+=`<tr><td style="color:var(--faint)">${i+1}</td><td>${r.st.n}${r.k===sel.st?' <span class="badge">current</span>':''}</td>
+        <td class="mm">${f1(r.lo)}–${f1(r.hi)}</td><td class="mm">${fm(c.lo)}–${fm(c.hi)}</td>
+        <td>${r.st.sc?'<span class="badge sc">⏱</span>':''}</td></tr>`;});
+    h+=`</table></div><p style="font-size:11.5px;color:var(--faint);margin:10px 0 0">⏱ = statutory review deadlines exist. Sorted fastest → slowest for this exact scenario.</p>`;
+  }else{
+    h+=`<div class="locknote"><b>Where would this project move fastest?</b> Pro ranks all 48 states for your exact gate mix — months and carry, side by side — plus every playbook tactic, unlimited saved scenarios, and a printable underwriting exhibit.<br>
+      <a class="lockbtn" href="${BUY_URL}" target="_blank" rel="noopener">Get Pro — ${PRICE_TXT} →</a>
+      <button class="lockbtn" style="background:var(--card);color:var(--dim);border:1px solid var(--line)" onclick="openPro()">I have a code</button></div>`;
+  }
+  h+=`</div>`;
+
+  h+=`<div class="rowbtns">
+    <button class="smallbtn" id="saveScen">📌 Save scenario</button>
+    <button class="smallbtn" id="shareBtn">🔗 Share</button>
+    <button class="smallbtn" id="printBtn">🖨 Underwriting exhibit ${S.pro?'':'🔒'}</button>
+  </div>
+  <p class="disc"><b>Read this:</b> PermitPath produces directional planning estimates from state-level factors and national benchmarks. Actual entitlement timelines are set by individual cities, counties, and agencies and vary enormously within every state. Use this to screen deals, size carry risk, and structure questions for local counsel and civil engineers — never as a substitute for them.</p>`;
+
+  $('results').innerHTML=h;
+  $('saveScen').onclick=()=>{
+    if(!S.pro&&S.scen.length>=1)return openPro('Free saves one scenario — Pro saves unlimited.');
+    S.scen.push({st:sel.st,type:sel.type,size:sel.size,gates:[...sel.gates],lo:R.lo,hi:R.hi});save();renderScens();toast('📌 Scenario pinned');
+  };
+  $('shareBtn').onclick=async()=>{
+    const p={st:sel.st,ty:sel.type,sz:sel.size,g:[...sel.gates],d:+$('debtIn').value,r:+$('rateIn').value,o:+$('softIn').value};
+    const url=location.origin+location.pathname+'#s='+btoa(JSON.stringify(p)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    try{ if(navigator.share)await navigator.share({title:'PermitPath scenario',url}); else{await navigator.clipboard.writeText(url);toast('🔗 Link copied');} }catch(e){try{await navigator.clipboard.writeText(url);toast('🔗 Link copied');}catch(_){}}
+  };
+  $('printBtn').onclick=()=>{ if(!S.pro)return openPro('The printable exhibit is a Pro feature.'); window.print(); };
+}
+
+/* shared links */
+(function(){
+  if(!location.hash.startsWith('#s='))return;
+  try{
+    let b=location.hash.slice(3).replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';
+    const p=JSON.parse(atob(b));
+    sel={st:p.st,type:p.ty,size:p.sz,gates:new Set(p.g)};
+    $('stateSel').value=p.st;
+    $('typeRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x.dataset.v===p.ty));
+    $('sizeRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x.dataset.v===p.sz));
+    if(p.d)$('debtIn').value=p.d; if(p.r)$('rateIn').value=p.r; if(p.o!=null)$('softIn').value=p.o;
+    renderGates();stateNote();toast('Loaded a shared scenario');
+  }catch(e){}
+})();
+
+proUI();renderScens();run();
+
+</script>
+</body>
+</html>
