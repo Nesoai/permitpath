@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PermitPath — see the timeline before you buy the dirt</title>
-<meta name="description" content="PermitPath models entitlement & permitting timelines across the 48 contiguous states — zoning, site plan, environmental, historic, utilities, hearings — and turns delay into dollars with a carrying-cost engine.">
+<meta name="description" content="PermitPath models entitlement & permitting timelines across all 50 states — zoning, site plan, environmental, historic, utilities, hearings — and turns delay into dollars with a carrying-cost engine.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -153,7 +153,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
 
 <div class="tagline">
   <h1>See the timeline <em>before</em> you buy the dirt.</h1>
-  <p>Model entitlement &amp; permitting schedules across the 48 contiguous states — zoning, site plan, environmental, historic, utilities, hearings — then turn every month of delay into dollars of carry.</p>
+  <p>Model entitlement &amp; permitting schedules across all 50 states — zoning, site plan, environmental, historic, utilities, hearings — then turn every month of delay into dollars of carry.</p>
 </div>
 
 <div id="app">
@@ -161,6 +161,17 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
     <label class="lbl">State</label>
     <select class="tin" id="stateSel"></select>
     <div class="mini" id="stateNote"></div>
+
+    <label class="lbl">County / city (optional — used for your quote)</label>
+    <input class="tin" id="countyIn" placeholder="e.g. Travis County, or City of Meriden">
+
+    <label class="lbl">Jurisdiction type</label>
+    <div class="segrow" id="jurisRow">
+      <button class="seg" data-v="metro">Major metro</button>
+      <button class="seg on" data-v="sub">Suburban</button>
+      <button class="seg" data-v="small">Small city</button>
+      <button class="seg" data-v="rural">Rural</button>
+    </div>
 
     <label class="lbl">Project type</label>
     <div class="segrow" id="typeRow"></div>
@@ -193,7 +204,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
 </div>
 
 <footer>
-  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.0 · </span>
+  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.1 · </span>
   Estimates are directional and for planning only; actual timelines are set by local jurisdictions. Verify locally. Not legal, engineering, or investment advice.
 </footer>
 
@@ -204,10 +215,20 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
 /* ============ PERMITPATH v1.0 — config ============ */
 const BUY_URL="#";           // ← Gumroad / Stripe payment link for Pro
 const PRICE_TXT="$29 one-time";
+/* Done-for-you services (Boundless fulfills) — edit prices & form freely */
+const SERVICE_FORM_URL="https://docs.google.com/forms/d/e/1FAIpQLSeQeG0kgYk2LuVWYUHswlcy9TbZS5KeQg_bNDTB7HUkELecww/viewform"; // ← intake form (Boundless "Start a project" form; swap for a dedicated one anytime)
+const SERVICE_EMAIL="boundless.mbf@gmail.com";
+const SERVICES=[
+ {id:'zvl',e:'📄',name:'Zoning verification letter',base:[250,450],days:'5–7 business days',
+  desc:'We research the parcel\u2019s zoning district, permitted uses, overlays, and nonconformities, and deliver a clean, source-cited letter you can hand to a lender, buyer, or title company.'},
+ {id:'ent',e:'🗂',name:'Rezoning / entitlement package support',base:[2500,6000],days:'scoped per project',
+  desc:'Application narrative, exhibits checklist, pre-application prep, and hearing-ready materials — built with your local counsel and engineer, managed to this timeline model.'}
+];
 /* ============ DATA ============ */
 /* mult = state regulatory-intensity factor (directional); sc = statutory shot-clock/deadline note; note = one-liner */
 const STATES={
  AL:{n:'Alabama',m:.85,sc:null,note:'Generally permissive; larger metros add review layers.'},
+ AK:{n:'Alaska',m:1.0,sc:null,note:'Light zoning outside Anchorage/boroughs; logistics and season drive schedules more than process.'},
  AZ:{n:'Arizona',m:1.05,sc:'Statutory licensing time frames apply to many approvals.',note:'Time-frame statutes help; water adequacy can gate large projects.'},
  AR:{n:'Arkansas',m:.85,sc:null,note:'Lean state layer; municipal boards drive timing.'},
  CA:{n:'California',m:1.6,sc:'Permit Streamlining Act sets decision deadlines once applications are complete.',note:'CEQA review is the dominant schedule driver; expect appeals risk.'},
@@ -216,6 +237,7 @@ const STATES={
  DE:{n:'Delaware',m:1.1,sc:null,note:'County-level review; coastal zone adds a layer.'},
  FL:{n:'Florida',m:1.1,sc:'s.553.792 building-permit deadlines with fee reductions for delay.',note:'Concurrency & environmental (SFWMD/DEP) shape schedules.'},
  GA:{n:'Georgia',m:1.0,sc:null,note:'Zoning Procedures Act sets hearing mechanics; metro Atlanta slower.'},
+ HI:{n:'Hawaii',m:1.5,sc:null,note:'Among the longest processes: SMA/coastal review, historic & cultural consultation, and permit backlogs (Honolulu DPP).'},
  ID:{n:'Idaho',m:.85,sc:null,note:'Fast-growth cities are stretched; state layer light.'},
  IL:{n:'Illinois',m:1.25,sc:null,note:'Chicago aldermanic dynamics vs. faster collar/downstate.'},
  IN:{n:'Indiana',m:.9,sc:null,note:'Plan-commission cycles are the main clock.'},
@@ -284,6 +306,7 @@ const PLAYBOOKS={
  hear:['Do the neighborhood coffee meetings before opponents organize — first framing wins.','Prepare a one-page community-benefits summary; boards fund their yes with it.','Have counsel brief you on appeal windows so a win actually starts the clock.']
 };
 const SIZES={s:.7,m:1,l:1.4};
+const JURIS={metro:['Major metro',1.25],sub:['Suburban',1.0],small:['Small city',0.9],rural:['Rural',0.8]};
 
 /* ============ ENGINE ============ */
 const $=id=>document.getElementById(id);
@@ -294,7 +317,7 @@ function toast(t){const x=$('toast');x.textContent=t;x.classList.add('on');clear
 const fm=n=>'$'+Math.round(n).toLocaleString('en-US');
 const f1=n=>(Math.round(n*10)/10).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:1});
 
-let sel={st:'GA',type:'mf',size:'m',gates:new Set(['rez','site','bp','util','hear'])};
+let sel={st:'GA',type:'mf',size:'m',juris:'sub',gates:new Set(['rez','site','bp','util','hear'])};
 
 /* inputs */
 $('stateSel').innerHTML=Object.keys(STATES).sort((a,b)=>STATES[a].n.localeCompare(STATES[b].n)).map(k=>`<option value="${k}">${STATES[k].n}</option>`).join('');
@@ -313,6 +336,11 @@ $('sizeRow').querySelectorAll('.seg').forEach(b=>b.onclick=()=>{
   sel.size=b.dataset.v;
   $('sizeRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x===b)); run();
 });
+$('jurisRow').querySelectorAll('.seg').forEach(b=>b.onclick=()=>{
+  sel.juris=b.dataset.v;
+  $('jurisRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x===b)); run();
+});
+$('countyIn').oninput=()=>{clearTimeout($('countyIn').t);$('countyIn').t=setTimeout(run,400);};
 function renderGates(){
   $('gates').innerHTML=GATES.map(g=>`<div class="gate ${sel.gates.has(g.id)?'on':''}" data-g="${g.id}">
     <span class="ge">${g.e}</span><div><div class="gt">${g.t}</div><div class="gs">${g.s}</div></div><span class="tick">✓</span></div>`).join('');
@@ -329,7 +357,7 @@ $('runBtn').onclick=()=>{run();window.scrollTo({top:0,behavior:'smooth'});};
 /* model */
 function compute(stKey){
   const st=STATES[stKey];
-  const mult=st.m*SIZES[sel.size]*TYPES.find(t=>t[0]===sel.type)[2];
+  const mult=st.m*SIZES[sel.size]*TYPES.find(t=>t[0]===sel.type)[2]*JURIS[sel.juris][1];
   const phases=[[],[],[]];
   GATES.forEach(g=>{
     if(!sel.gates.has(g.id)||g.id==='hear')return;
@@ -366,7 +394,7 @@ $('modal').onclick=e=>{if(e.target.id==='modal')$('modal').classList.remove('on'
 function openPro(msg){
   openModal('PermitPath Pro',`<p>${msg||'One unlock, yours forever on this device:'}</p>
    <ul style="color:var(--dim);font-size:13.5px;line-height:1.9;padding-left:18px;margin:8px 0 14px">
-     <li>All-48-state comparison matrix for your exact scenario</li>
+     <li>All-50-state comparison matrix for your exact scenario</li>
      <li>Full delay-mitigation playbooks (every gate, every tip)</li>
      <li>Unlimited saved scenarios &amp; printable underwriting exhibit</li></ul>
    <a class="lockbtn" href="${BUY_URL}" target="_blank" rel="noopener">Get Pro — ${PRICE_TXT} →</a>
@@ -407,7 +435,7 @@ function run(){
   let h=`<div class="bigcard"><div class="verdict">
     <div class="vmo">${f1(R.lo)}–${f1(R.hi)}<span style="font-size:.45em;font-weight:600"> mo</span></div>
     <div><div class="vt">${R.st.n} · ${TYPES.find(t=>t[0]===sel.type)[1].slice(2)} · ${sel.size==='s'?'small':sel.size==='m'?'medium':'large'} scale</div>
-    <div class="vs">${[...sel.gates].length} gates modeled · state factor ×${R.st.m.toFixed(2)}${R.st.sc?' · <span class="badge sc">⏱ shot-clock state</span>':''}</div></div>
+    <div class="vs">${$('countyIn').value?$('countyIn').value+' · ':''}${JURIS[sel.juris][0]} · ${[...sel.gates].length} gates · state ×${R.st.m.toFixed(2)} · jurisdiction ×${JURIS[sel.juris][1].toFixed(2)}${R.st.sc?' · <span class="badge sc">⏱ shot-clock state</span>':''}</div></div>
   </div></div>`;
 
   // gantt
@@ -441,7 +469,7 @@ function run(){
   h+=`</div>`;
 
   // matrix
-  h+=`<div class="bigcard"><div class="secl" style="margin-top:0">Same project, all 48 states ${S.pro?'':'<span class="lock">· Pro</span>'}</div>`;
+  h+=`<div class="bigcard"><div class="secl" style="margin-top:0">Same project, all 50 states ${S.pro?'':'<span class="lock">· Pro</span>'}</div>`;
   if(S.pro){
     const rows=Object.keys(STATES).map(k=>({k,...compute(k)})).sort((a,b)=>a.lo-b.lo);
     h+=`<div style="max-height:420px;overflow-y:auto"><table class="mtable"><tr><th>#</th><th>State</th><th>Months</th><th>Carry range</th><th></th></tr>`;
@@ -451,13 +479,19 @@ function run(){
         <td>${r.st.sc?'<span class="badge sc">⏱</span>':''}</td></tr>`;});
     h+=`</table></div><p style="font-size:11.5px;color:var(--faint);margin:10px 0 0">⏱ = statutory review deadlines exist. Sorted fastest → slowest for this exact scenario.</p>`;
   }else{
-    h+=`<div class="locknote"><b>Where would this project move fastest?</b> Pro ranks all 48 states for your exact gate mix — months and carry, side by side — plus every playbook tactic, unlimited saved scenarios, and a printable underwriting exhibit.<br>
+    h+=`<div class="locknote"><b>Where would this project move fastest?</b> Pro ranks all 50 states for your exact gate mix — months and carry, side by side — plus every playbook tactic, unlimited saved scenarios, and a printable underwriting exhibit.<br>
       <a class="lockbtn" href="${BUY_URL}" target="_blank" rel="noopener">Get Pro — ${PRICE_TXT} →</a>
       <button class="lockbtn" style="background:var(--card);color:var(--dim);border:1px solid var(--line)" onclick="openPro()">I have a code</button></div>`;
   }
   h+=`</div>`;
 
-  h+=`<div class="rowbtns">
+  // done-for-you services
+  const county=$('countyIn').value.trim();
+  const feeMult=R.st.m*JURIS[sel.juris][1];
+  h+=`<div class="bigcard" id="svcCard"><div class="secl" style="margin-top:0">Done for you — by the Boundless team</div>
+    <div class="segrow" style="margin-bottom:14px" id="svcRow">${SERVICES.map((sv,i)=>`<button class="seg ${i===(window.SVCI||0)?'on':''}" data-i="${i}">${sv.e} ${sv.name.split(' ')[0]}${sv.id==='ent'?' / entitlement':' letter'}</button>`).join('')}</div>
+    <div id="svcBody"></div></div>
+  <div class="rowbtns">
     <button class="smallbtn" id="saveScen">📌 Save scenario</button>
     <button class="smallbtn" id="shareBtn">🔗 Share</button>
     <button class="smallbtn" id="printBtn">🖨 Underwriting exhibit ${S.pro?'':'🔒'}</button>
@@ -465,16 +499,41 @@ function run(){
   <p class="disc"><b>Read this:</b> PermitPath produces directional planning estimates from state-level factors and national benchmarks. Actual entitlement timelines are set by individual cities, counties, and agencies and vary enormously within every state. Use this to screen deals, size carry risk, and structure questions for local counsel and civil engineers — never as a substitute for them.</p>`;
 
   $('results').innerHTML=h;
+  renderService(R);
   $('saveScen').onclick=()=>{
     if(!S.pro&&S.scen.length>=1)return openPro('Free saves one scenario — Pro saves unlimited.');
     S.scen.push({st:sel.st,type:sel.type,size:sel.size,gates:[...sel.gates],lo:R.lo,hi:R.hi});save();renderScens();toast('📌 Scenario pinned');
   };
   $('shareBtn').onclick=async()=>{
-    const p={st:sel.st,ty:sel.type,sz:sel.size,g:[...sel.gates],d:+$('debtIn').value,r:+$('rateIn').value,o:+$('softIn').value};
+    const p={st:sel.st,ty:sel.type,sz:sel.size,j:sel.juris,co:$('countyIn').value,g:[...sel.gates],d:+$('debtIn').value,r:+$('rateIn').value,o:+$('softIn').value};
     const url=location.origin+location.pathname+'#s='+btoa(JSON.stringify(p)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
     try{ if(navigator.share)await navigator.share({title:'PermitPath scenario',url}); else{await navigator.clipboard.writeText(url);toast('🔗 Link copied');} }catch(e){try{await navigator.clipboard.writeText(url);toast('🔗 Link copied');}catch(_){}}
   };
   $('printBtn').onclick=()=>{ if(!S.pro)return openPro('The printable exhibit is a Pro feature.'); window.print(); };
+}
+
+function renderService(R){
+  const i=window.SVCI||0, sv=SERVICES[i];
+  const county=$('countyIn').value.trim();
+  const feeMult=R.st.m*JURIS[sel.juris][1];
+  const r25=n=>Math.round(n/25)*25;
+  const lo=r25(sv.base[0]*feeMult), hi=r25(sv.base[1]*feeMult);
+  const where=county?county+', '+R.st.n:R.st.n+' ('+JURIS[sel.juris][0].toLowerCase()+' jurisdiction)';
+  const scen='State: '+R.st.n+(county?' · '+county:'')+' · '+JURIS[sel.juris][0]+' · '+TYPES.find(t=>t[0]===sel.type)[1].slice(2)+' · gates: '+[...sel.gates].join(', ')+' · modeled '+f1(R.lo)+'–'+f1(R.hi)+' months';
+  const mail='mailto:'+SERVICE_EMAIL+'?subject='+encodeURIComponent('PermitPath request — '+sv.name+' · '+where)+'&body='+encodeURIComponent('Hi Boundless,%0A%0AI\u2019d like a quote for: '+sv.name+'%0AWhere: '+where+'%0A%0AScenario: '+scen+'%0A%0AProperty address / parcel:%0ATiming needed:%0AAnything else:').replace(/%250A/g,'%0A');
+  $('svcBody').innerHTML=`<p style="font-size:13.5px;color:var(--dim);margin:0 0 12px">${sv.desc}</p>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:baseline">
+      <div><div class="carrybig" style="font-size:clamp(22px,3vw,30px)">$${lo.toLocaleString()}–$${hi.toLocaleString()}</div>
+      <div class="carrysub">Estimated service fee for ${where}</div></div>
+      <div style="font-size:12.5px;color:var(--faint)">Typical turnaround: ${sv.days}</div>
+    </div>
+    <div class="rowbtns" style="margin:14px 0 4px">
+      <a class="lockbtn" style="background:linear-gradient(90deg,var(--a1),var(--a2));color:#04211a;text-decoration:none" href="${SERVICE_FORM_URL}" target="_blank" rel="noopener">Request this — start intake →</a>
+      <a class="smallbtn" style="text-decoration:none" href="${mail}">📧 Email us this exact scenario</a>
+    </div>
+    <p style="font-size:11px;color:var(--faint);margin:8px 0 0">Our professional-service fee only — government application fees, engineering, and legal are separate. Exact quote confirmed after intake; jurisdictions vary${county?'':' — name your county above for a sharper number'}.</p>`;
+  document.querySelectorAll('#svcRow .seg').forEach(b=>b.onclick=()=>{window.SVCI=+b.dataset.i;
+    document.querySelectorAll('#svcRow .seg').forEach(x=>x.classList.toggle('on',x===b));renderService(R);});
 }
 
 /* shared links */
@@ -483,7 +542,9 @@ function run(){
   try{
     let b=location.hash.slice(3).replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';
     const p=JSON.parse(atob(b));
-    sel={st:p.st,type:p.ty,size:p.sz,gates:new Set(p.g)};
+    sel={st:p.st,type:p.ty,size:p.sz,juris:p.j||'sub',gates:new Set(p.g)};
+    if(p.co)$('countyIn').value=p.co;
+    $('jurisRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x.dataset.v===sel.juris));
     $('stateSel').value=p.st;
     $('typeRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x.dataset.v===p.ty));
     $('sizeRow').querySelectorAll('.seg').forEach(x=>x.classList.toggle('on',x.dataset.v===p.sz));
