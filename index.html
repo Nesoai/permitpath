@@ -210,7 +210,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
 </div>
 
 <footer>
-  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.4 · </span>
+  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.5 · </span>
   Estimates are directional and for planning only; actual timelines are set by local jurisdictions. Verify locally. Not legal, engineering, or investment advice.
 </footer>
 
@@ -219,7 +219,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
 
 <script>
 /* ============ PERMITPATH v1.0 — config ============ */
-const BUY_URL="#";           // ← Gumroad / Stripe payment link for Pro
+const BUY_URL="mailto:boundless.mbf@gmail.com?subject=Requesting%20PermitPath%20Pro%20%28%2429%29&body=Hi%20Boundless%20%E2%80%94%20I%20would%20like%20PermitPath%20Pro.%20Please%20send%20my%20unlock%20code%20and%20how%20to%20pay."; // ← swap for the Gumroad link when live
 const PRICE_TXT="$29 one-time";
 /* Done-for-you services (Boundless fulfills) — edit prices & form freely */
 const SERVICE_FORM_URL="https://docs.google.com/forms/d/e/1FAIpQLSeQeG0kgYk2LuVWYUHswlcy9TbZS5KeQg_bNDTB7HUkELecww/viewform"; // ← intake form (Boundless "Start a project" form; swap for a dedicated one anytime)
@@ -403,7 +403,7 @@ function openPro(msg){
      <li>All-50-state comparison matrix for your exact scenario</li>
      <li>Full delay-mitigation playbooks (every gate, every tip)</li>
      <li>Unlimited saved scenarios &amp; printable underwriting exhibit</li></ul>
-   <a class="lockbtn" href="${BUY_URL}" target="_blank" rel="noopener">Get Pro — ${PRICE_TXT} →</a>
+   <a class="lockbtn" href="${BUY_URL}" target="_blank" rel="noopener">Request Pro — ${PRICE_TXT} →</a>
    <div style="display:flex;gap:8px;align-items:center;margin-top:14px">
      <input class="tin" id="codeIn" placeholder="PMT-XXXX-XXXX" style="flex:1">
      <button class="lockbtn" id="applyCode" style="background:var(--a1);color:#04211a;margin:0">Apply</button></div>`);
@@ -486,7 +486,7 @@ function run(){
     h+=`</table></div><p style="font-size:11.5px;color:var(--faint);margin:10px 0 0">⏱ = statutory review deadlines exist. Sorted fastest → slowest for this exact scenario.</p>`;
   }else{
     h+=`<div class="locknote"><b>Where would this project move fastest?</b> Pro ranks all 50 states for your exact gate mix — months and carry, side by side — plus every playbook tactic, unlimited saved scenarios, and a printable underwriting exhibit.<br>
-      <a class="lockbtn" href="${BUY_URL}" target="_blank" rel="noopener">Get Pro — ${PRICE_TXT} →</a>
+      <a class="lockbtn" href="${BUY_URL}" target="_blank" rel="noopener">Request Pro — ${PRICE_TXT} →</a>
       <button class="lockbtn" style="background:var(--card);color:var(--dim);border:1px solid var(--line)" onclick="openPro()">I have a code</button></div>`;
   }
   h+=`</div>`;
@@ -536,10 +536,24 @@ function renderService(R){
     <div class="rowbtns" style="margin:14px 0 4px">
       <a class="lockbtn" style="background:linear-gradient(90deg,var(--a1),var(--a2));color:#04211a;text-decoration:none" href="${SERVICE_FORM_URL}" target="_blank" rel="noopener">Request this — start intake →</a>
       <a class="smallbtn" style="text-decoration:none" href="${mail}">📧 Email us this exact scenario</a>
+      <button class="smallbtn" id="sampleBtn">👁 View a sample letter</button>
     </div>
     <p style="font-size:11px;color:var(--faint);margin:8px 0 0">Our professional-service fee only — government application fees, engineering, and legal are separate. Exact quote confirmed after intake; jurisdictions vary${county?'':' — name your county above for a sharper number'}.</p>`;
   document.querySelectorAll('#svcRow .seg').forEach(b=>b.onclick=()=>{window.SVCI=+b.dataset.i;
     document.querySelectorAll('#svcRow .seg').forEach(x=>x.classList.toggle('on',x===b));renderService(R);});
+  const sb=$('sampleBtn');if(sb)sb.onclick=()=>openModal('Sample: Zoning Verification Letter',
+    `<div style="background:#fff;color:#111;border-radius:12px;padding:22px;font-family:Georgia,serif;font-size:13px;line-height:1.7;position:relative;overflow:hidden">
+     <div style="position:absolute;inset:0;display:grid;place-items:center;pointer-events:none"><span style="font-size:52px;font-weight:700;color:rgba(200,60,60,.13);transform:rotate(-24deg);letter-spacing:.2em">SAMPLE</span></div>
+     <b>BOUNDLESS — ZONING VERIFICATION LETTER</b><br>Re: Parcel 042-118-007 · 1420 Meridian Avenue, City of Fairview<br><br>
+     To whom it may concern:<br><br>At the request of the owner, we researched the above parcel against the City of Fairview Unified Development Code (as amended) and the official zoning map dated March 2026. Our findings:<br><br>
+     <b>1. Zoning district:</b> C-2, Community Commercial.<br>
+     <b>2. Permitted uses:</b> Retail sales and service, professional office, and restaurant uses are permitted by right (UDC §4.02). Drive-through facilities require a Special Use Permit (§4.06).<br>
+     <b>3. Overlays:</b> The parcel lies within the Gateway Corridor Overlay, imposing enhanced façade and landscaping standards (§7.11). It is <i>not</i> within a historic district, floodway, or airport zone.<br>
+     <b>4. Dimensional check:</b> The existing structure conforms to current setback and height standards; no legal nonconformities were identified in the available record.<br>
+     <b>5. Open matters:</b> No open zoning violations or pending map amendments affecting the parcel were found as of this date.<br><br>
+     Sources: Fairview UDC; official zoning map; planning-department records request #26-0412.<br><br>
+     Prepared by Boundless · Mallory Bailey-Finkley, MBA<br>
+     <i style="font-size:11px;color:#666">This sample is fictional and illustrative of format, sourcing, and depth. Actual letters cite your jurisdiction's real code sections and records.</i></div>`);
 }
 
 /* shared links */
