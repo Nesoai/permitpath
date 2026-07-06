@@ -204,7 +204,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
 </div>
 
 <footer>
-  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.1 · </span>
+  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.2 · </span>
   Estimates are directional and for planning only; actual timelines are set by local jurisdictions. Verify locally. Not legal, engineering, or investment advice.
 </footer>
 
@@ -352,7 +352,7 @@ function renderGates(){
 }
 renderGates(); stateNote();
 ['debtIn','rateIn','softIn'].forEach(id=>$(id).oninput=()=>run());
-$('runBtn').onclick=()=>{run();window.scrollTo({top:0,behavior:'smooth'});};
+$('runBtn').onclick=()=>{run();const r=$('results');if(r&&r.scrollIntoView)r.scrollIntoView({behavior:'smooth',block:'start'});};
 
 /* model */
 function compute(stKey){
