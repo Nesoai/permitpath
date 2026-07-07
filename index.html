@@ -210,7 +210,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
 </div>
 
 <footer>
-  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.6 · © 2026 Boundless / Mallory Bailey-Finkley — all rights reserved · </span>
+  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.7 · © 2026 Boundless / Mallory Bailey-Finkley — all rights reserved · </span>
   Estimates are directional and for planning only; actual timelines are set by local jurisdictions. Verify locally. Not legal, engineering, or investment advice.
 </footer>
 
@@ -504,6 +504,7 @@ function run(){
   </div>
   <p class="disc"><b>Read this:</b> PermitPath produces directional planning estimates from state-level factors and national benchmarks. Actual entitlement timelines are set by individual cities, counties, and agencies and vary enormously within every state. Use this to screen deals, size carry risk, and structure questions for local counsel and civil engineers — never as a substitute for them.</p>`;
 
+  h=`<div style="display:flex;gap:10px;align-items:center;background:linear-gradient(92deg,rgba(16,185,129,.12),rgba(245,158,11,.10));border:1px solid rgba(16,185,129,.35);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;flex-wrap:wrap">⚡ <span><b>Want it done for you?</b> Zoning letters &amp; entitlement support by the Boundless permit team — at the bottom of this report.</span> <button class="smallbtn" style="margin-left:auto" onclick="var s=document.getElementById('svcCard');if(s)s.scrollIntoView({behavior:'smooth'})">Jump ↓</button></div>`+h;
   $('results').innerHTML=h;
   renderService(R);
   $('saveScen').onclick=()=>{
