@@ -142,6 +142,28 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
   .verdict .vmo,.carrybig{color:#000;-webkit-text-fill-color:#000}
   #app{display:block}
 }
+
+/* tooltips */
+.tip{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:var(--line);color:var(--dim);font-size:10px;font-weight:700;cursor:help;position:relative;vertical-align:middle;margin-left:3px}
+.tip:hover,.tip:focus{background:var(--a1);color:#04211a;outline:none}
+.tipbox{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:210px;background:#0b1013;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:11.5px;line-height:1.5;color:var(--ink);font-weight:400;text-transform:none;letter-spacing:0;box-shadow:0 10px 30px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:.15s;z-index:60}
+.tip:hover .tipbox,.tip:focus .tipbox{opacity:1}
+@media(max-width:640px){.tipbox{left:auto;right:-6px;transform:none;width:190px}}
+/* carry collapsible */
+.carrytoggle{width:100%;margin-top:18px;background:var(--card);border:1px dashed var(--line);border-radius:12px;color:var(--dim);font-weight:600;font-size:13.5px;padding:12px 13px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px}
+.carrytoggle:hover{border-color:var(--a1);color:var(--ink)}
+.carrytoggle .ct-chev{margin-left:auto;transition:.15s;font-size:12px}
+/* cost of delay (the punchline) */
+.costcard{background:linear-gradient(120deg,rgba(245,158,11,.12),rgba(248,113,113,.07));border-color:rgba(245,158,11,.45)}
+.cost-hero{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.cost-mo{font-family:Fraunces,serif;font-size:clamp(34px,6vw,54px);font-weight:700;color:var(--amber);line-height:1;white-space:nowrap}
+.cost-mo span{font-size:.32em;color:var(--dim);font-weight:600;margin-left:5px}
+.cost-note{font-size:14px;color:var(--dim);flex:1;min-width:210px;line-height:1.55}
+.cost-note b{color:var(--ink)}
+.cost-hit{color:var(--bad)!important}
+.cost-total{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px;color:var(--dim)}
+.cost-total b{color:var(--ink)}
+.cost-adjust{background:none;border:none;color:var(--a2);font:inherit;font-size:12.5px;cursor:pointer;text-decoration:underline;padding:0;margin-left:4px}
 </style>
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22PermitPath%22%2C%22short_name%22%3A%22PermitPath%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230e1317%22%2C%22theme_color%22%3A%22%230e1317%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage/svg%2Bxml%2C%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27110%27%20fill%3D%27%25230f1418%27/%3E%3Cpath%20d%3D%27M128%20384%20L128%20192%20L256%20192%20L256%20288%20L384%20288%20L384%20128%27%20fill%3D%27none%27%20stroke%3D%27%252310b981%27%20stroke-width%3D%2742%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27/%3E%3Ccircle%20cx%3D%27384%27%20cy%3D%27128%27%20r%3D%2748%27%20fill%3D%27%2523f59e0b%27/%3E%3C/svg%3E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image/svg%2Bxml%22%2C%22purpose%22%3A%22any%22%7D%5D%7D">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -189,14 +211,17 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
       <button class="seg" data-v="l">Large</button>
     </div>
 
-    <label class="lbl">Approval gates (tap all that apply)</label>
+    <label class="lbl">Approval gates (tap all that apply) <span class="tip" tabindex="0">?<span class="tipbox">Each gate is an approval your project may need. Tap the ones that apply — we sequence them into phases.</span></span></label>
     <div id="gates"></div>
 
-    <label class="lbl">Carrying-cost inputs</label>
-    <div class="finrow">
-      <div class="fld"><input class="tin" id="debtIn" type="number" value="2000000" min="0" step="50000"><small>Land + loan basis ($)</small></div>
-      <div class="fld"><input class="tin" id="rateIn" type="number" value="8.5" min="0" step="0.25"><small>Interest rate (%/yr)</small></div>
-      <div class="fld"><input class="tin" id="softIn" type="number" value="6000" min="0" step="500"><small>Other monthly carry ($)</small></div>
+    <button type="button" class="carrytoggle" id="carryToggle" aria-expanded="false">💰 Fine-tune the dollar impact <span class="ct-chev">▸</span></button>
+    <div id="carryWrap" hidden>
+      <p class="mini" style="margin-top:10px">We pre-fill typical numbers so you see dollars instantly — adjust for your deal.</p>
+      <div class="finrow">
+        <div class="fld"><input class="tin" id="debtIn" type="number" value="1500000" min="0" step="50000"><small>Land + loan basis ($) <span class="tip" tabindex="0">?<span class="tipbox">The total you’ve spent to acquire the property, including loans.</span></span></small></div>
+        <div class="fld"><input class="tin" id="rateIn" type="number" value="8" min="0" step="0.25"><small>Interest rate (%/yr) <span class="tip" tabindex="0">?<span class="tipbox">Annual interest rate on your acquisition or loan debt.</span></span></small></div>
+        <div class="fld"><input class="tin" id="softIn" type="number" value="4000" min="0" step="500"><small>Other monthly carry ($) <span class="tip" tabindex="0">?<span class="tipbox">Monthly out-of-pocket holding costs — property taxes, insurance, security, and the like.</span></span></small></div>
+      </div>
     </div>
 
     <button id="runBtn">Run the timeline →</button>
@@ -210,7 +235,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--faint);fon
 </div>
 
 <footer>
-  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.7 · © 2026 Boundless / Mallory Bailey-Finkley — all rights reserved · </span>
+  <span class="noprint">PermitPath · a <a href="https://nesoai.github.io/mallory/" target="_blank" rel="noopener">Boundless</a> tool · v1.8 · © 2026 Boundless / Mallory Bailey-Finkley — all rights reserved · </span>
   Estimates are directional and for planning only; actual timelines are set by local jurisdictions. Verify locally. Not legal, engineering, or investment advice.
 </footer>
 
@@ -358,6 +383,7 @@ function renderGates(){
 }
 renderGates(); stateNote();
 ['debtIn','rateIn','softIn'].forEach(id=>$(id).oninput=()=>run());
+$('carryToggle').onclick=()=>{const w=$('carryWrap'),o=!w.hidden;w.hidden=o;$('carryToggle').setAttribute('aria-expanded',String(!o));$('carryToggle').querySelector('.ct-chev').textContent=o?'\u25b8':'\u25be';};
 $('runBtn').onclick=()=>{run();const r=$('results');if(r&&r.scrollIntoView)r.scrollIntoView({behavior:'smooth',block:'start'});};
 
 /* model */
@@ -444,6 +470,14 @@ function run(){
     <div class="vs">${$('countyIn').value?$('countyIn').value+' · ':''}${JURIS[sel.juris][0]} · ${[...sel.gates].length} gates · state ×${R.st.m.toFixed(2)} · jurisdiction ×${JURIS[sel.juris][1].toFixed(2)}${R.st.sc?' · <span class="badge sc">⏱ shot-clock state</span>':''}</div></div>
   </div></div>`;
 
+  // cost of delay — the punchline, right under the verdict, updates live
+  const delay3=C.mo*3;
+  h+=`<div class="bigcard costcard"><div class="secl" style="margin-top:0">⚡ The cost of delay</div>
+    <div class="cost-hero"><div class="cost-mo">${fm(C.mo)}<span>/ month</span></div>
+    <div class="cost-note">Every extra month of entitlement burns <b>${fm(C.mo)}</b> in interest + holding costs.<br>A <b>3-month</b> slip adds <b class="cost-hit">${fm(delay3)}</b> to your budget.</div></div>
+    <div class="cost-total">Total carry across the ${f1(R.lo)}–${f1(R.hi)} month window: <b>${fm(C.lo)} – ${fm(C.hi)}</b><button class="cost-adjust" onclick="var w=document.getElementById('carryWrap');if(w&&w.hidden)document.getElementById('carryToggle').click();document.getElementById('carryToggle').scrollIntoView({behavior:'smooth',block:'center'})">adjust your numbers</button></div>
+  </div>`;
+
   // gantt
   h+=`<div class="bigcard"><div class="secl" style="margin-top:0">Sequenced timeline (parallel gates share a phase)</div><div class="gantt">`;
   R.rows.forEach(row=>{
@@ -457,12 +491,6 @@ function run(){
   });
   h+=`</div><div class="gaxis"><span>0</span><span>${f1(maxMo/2)} mo</span><span>${f1(maxMo)} mo</span></div>
   <p style="font-size:12px;color:var(--faint);margin:10px 0 0">Solid = optimistic path · hatched = the slow-case tail. Gates inside a phase run in parallel; phases run in sequence.</p></div>`;
-
-  // carry
-  h+=`<div class="bigcard"><div class="secl" style="margin-top:0">What the wait costs</div>
-    <div class="carrybig">${fm(C.lo)} – ${fm(C.hi)}</div>
-    <div class="carrysub">Total carry across the entitlement window · ${fm(C.mo)}/month (interest + soft carry)</div>
-    <div class="permo">Every extra month of delay costs <b>${fm(C.mo)}</b>. A single avoided continuance can pay for a lot of pre-application coffee.</div></div>`;
 
   // playbooks
   h+=`<div class="bigcard"><div class="secl" style="margin-top:0">Delay-mitigation playbook ${S.pro?'':'<span class="lock">· Pro shows every tip</span>'}</div>`;
